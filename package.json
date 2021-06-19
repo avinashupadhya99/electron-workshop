@@ -1,7 +1,7 @@
 {
-  "name": "standup-desktop-app",
+  "name": "text-editor-app",
   "version": "0.0.0",
-  "description": "A desktop application for tracking daily standups. Written in Electron.",
+  "description": "A simple demo desktop application for editing files. Written in Electron.",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
