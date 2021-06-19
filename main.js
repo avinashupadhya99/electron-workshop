@@ -6,7 +6,7 @@ const {
     BrowserWindow,
     Menu
 } = require('electron');
-const { readFileSync } = require('fs');
+const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 
 let mainWindow;
@@ -61,6 +61,7 @@ function readFileContents(filePath) {
     // console.log(fileContent.toString());
     mainWindow.webContents.send('file-content', {
         fileName: fileName,
+        filePath: filePath,
         fileContent: fileContent.toString()
     });
 }
@@ -71,7 +72,20 @@ function openFile() {
     }).then((file_paths) => {
         if(!file_paths.canceled) {
             readFileContents(file_paths.filePaths[0]); // Read the file contents of the first file selected
+            // Enable save menu option
+            mainMenuTemplate[0].submenu[1].enabled = true;
+            // Rebuild menu
+            const menu = Menu.buildFromTemplate(mainMenuTemplate);
+            Menu.setApplicationMenu(menu);
         }
+    });
+}
+
+function saveFile() {
+    mainWindow.webContents.send('save-file', null);
+    ipcMain.on('save-file-content', (event, data) => {
+        const { fileContent, filePath } = data;
+        writeFileSync(filePath, fileContent);
     });
 }
 
@@ -84,6 +98,14 @@ const mainMenuTemplate = [
                 accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
                 click() {
                     openFile();
+                }
+            },
+            {
+                label: 'Save',
+                accelerator: process.platform == 'darwin' ? 'Command+S' : 'Ctrl+S',
+                enabled: false,
+                click() {
+                    saveFile();
                 }
             },
             {
