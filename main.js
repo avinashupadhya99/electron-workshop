@@ -1,8 +1,11 @@
 // Modules to control application life and create native browser window
 const {
     app,
-    BrowserWindow
-} = require('electron')
+    dialog,
+    BrowserWindow,
+    Menu
+} = require('electron');
+const { readFileSync } = require('fs');
 const path = require('path')
 
 function createWindow() {
@@ -17,6 +20,10 @@ function createWindow() {
 
     // Open the DevTools.
     // mainWindow.webContents.openDevTools()
+    // Build menu from template
+    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+    // Insert menu
+    Menu.setApplicationMenu(mainMenu);
 }
 
 // This method will be called when Electron has finished
@@ -30,7 +37,7 @@ app.whenReady().then(() => {
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
-})
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -39,5 +46,40 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+function readFileContents(filePath) {
+    const fileContent = readFileSync(filePath);
+    console.log(fileContent.toString());
+}
+
+function openFile() {
+    dialog.showOpenDialog({
+        properties: ['openFile']
+    }).then((file_paths) => {
+        if(!file_paths.canceled) {
+            readFileContents(file_paths.filePaths[0]); // Read the file contents of the first file selected
+        }
+    });
+}
+
+const mainMenuTemplate = [
+    // Each object is a dropdown
+    {
+        label: 'File',
+        submenu: [{
+                label: 'Open',
+                accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
+                click() {
+                    openFile();
+                }
+            },
+            {
+                label: 'Exit',
+                accelerator: process.platform == 'darwin' ? 'Command+E' : 'Ctrl+E',
+                click() {
+                    app.quit();
+                }
+            }
+        ]
+    }
+];
+
