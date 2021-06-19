@@ -6,3 +6,11 @@
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
+
+.editor {
+    border: .2rem black solid;
+    height: 80vh;
+    margin: 2rem;
+    overflow: scroll;
+    white-space: pre-wrap;
+}

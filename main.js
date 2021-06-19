@@ -2,24 +2,32 @@
 const {
     app,
     dialog,
+    ipcMain,
     BrowserWindow,
     Menu
 } = require('electron');
 const { readFileSync } = require('fs');
-const path = require('path')
+const path = require('path');
+
+let mainWindow;
 
 function createWindow() {
     // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 800,
-        height: 600
+        height: 600,
+        webPreferences: {
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            contextIsolation: false
+        }
     })
 
     // and load the index.html of the app.
-    mainWindow.loadFile('index.html')
+    mainWindow.loadFile('index.html');
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools();
     // Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     // Insert menu
@@ -30,7 +38,7 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-    createWindow()
+    createWindow();
 
     app.on('activate', function () {
         // On macOS it's common to re-create a window in the app when the
@@ -47,8 +55,14 @@ app.on('window-all-closed', function () {
 })
 
 function readFileContents(filePath) {
+    const lastSlashIndex = process.platform == 'win32' ? filePath.lastIndexOf("\\") : filePath.lastIndexOf("/");
+    const fileName = filePath.substring(lastSlashIndex+1);
     const fileContent = readFileSync(filePath);
-    console.log(fileContent.toString());
+    // console.log(fileContent.toString());
+    mainWindow.webContents.send('file-content', {
+        fileName: fileName,
+        fileContent: fileContent.toString()
+    });
 }
 
 function openFile() {
