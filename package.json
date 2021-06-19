@@ -4,11 +4,17 @@
   "description": "A simple demo desktop application for editing files. Written in Electron.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+      "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --prune=true --out=release-builds",
+      "package-win": "electron-packager . text-editor-app --overwrite --asar=true --platform=win32 --arch=ia32  --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Text Editor App\"",    
+      "package-linux": "electron-packager . text-editor-app --overwrite --asar=true --platform=linux --arch=x64 --prune=true --out=release-builds"
   },
   "author": "Avinash Upadhyaya",
   "license": "MIT",
   "dependencies": {
     "electron": "^13.1.1"
+  },
+  "devDependencies": {
+    "electron-packager": "^15.2.0"
   }
 }
