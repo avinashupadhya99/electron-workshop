@@ -82,11 +82,25 @@ function openFile() {
 }
 
 function saveFile() {
-    mainWindow.webContents.send('save-file', null);
-    ipcMain.on('save-file-content', (event, data) => {
-        const { fileContent, filePath } = data;
-        writeFileSync(filePath, fileContent);
-    });
+    dialog.showMessageBox(
+        mainWindow,
+        {
+            title: "Confirm Save",
+            message: "Are you sure you want to save the file?",
+            buttons: ["Save", "Cancel"],
+            noLink: true
+        }).then(response => {
+            if(response.response === 0) {
+                // Save
+                mainWindow.webContents.send('save-file', null);
+                ipcMain.on('save-file-content', (event, data) => {
+                    const { fileContent, filePath } = data;
+                    writeFileSync(filePath, fileContent);
+                });
+            } else {
+                // Do nothing since it was cancelled
+            }
+        });
 }
 
 const mainMenuTemplate = [
